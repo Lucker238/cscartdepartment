@@ -21,6 +21,8 @@ use Tygh\Enum\YesNo;
 use Tygh\Registry;
 use Tygh\Tools\Url;
 use Tygh\Tygh;
+use Tygh\Languages\Languages;
+
 
 defined('BOOTSTRAP') or die('Access denied');
 
@@ -36,6 +38,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         return array(CONTROLLER_STATUS_OK, 'profiles.manage' . (isset($_REQUEST['user_type']) ? '?user_type=' . $_REQUEST['user_type'] : '' ));
     }
+
+    if($mode == 'update_department') {
+        $department_id = !empty($_REQUEST["department_id"]) ? $_REQUEST['department_id'] : 0;
+        $data = !empty($_REQUEST['department_data']) ? $_REQUEST['department_data'] : [];
+        $department_id = fn_update_department($data, $department_id);
+        if (!empty($department_id)) {
+            $suffix = ".update_department?department_id={$department_id}";
+        } else {
+            $suffix = ".add_department";
+        }
+    } elseif ($mode == 'update_departments') {
+        if(!empty($_REQUEST['departments_data'])) {
+            foreach($_REQUEST['departments_data'] as $department_id => $data) {
+                fn_update_department($data, $department_id);
+            }
+        }
+        $suffix = ".manage_departments";
+        } elseif ($mode == 'delete_department') {
+            $department_id = !empty($_REQUEST["department_id"]) ? $_REQUEST['department_id'] : 0;
+            fn_delete_department($department_id);
+            $suffix = ".manage_department";
+
+    } elseif ($mode == 'delete_departments') {
+        if(!empty($_REQUEST['departments_ids'])) {
+            foreach($_REQUEST['departments_ids'] as $department_id) {
+                fn_delete_department($collection_id);
+            }
+        }
+        $suffix = ".manage_department";
+    }
+
 
     if ($mode === 'export_range') {
         if (!empty($_REQUEST['user_ids'])) {
@@ -818,4 +851,184 @@ if ($mode === 'get_manager_list') {
     Tygh::$app['ajax']->assign('total_objects', isset($params['total_items']) ? $params['total_items'] : count($objects));
 
     return[CONTROLLER_STATUS_NO_CONTENT];
+} elseif ($mode == 'add_department' || $mode == 'update_department') {
+
+    $department_id = !empty($_REQUEST['department_id']) ? $_REQUEST['department_id'] : 0;
+    $department_data = fn_get_department_data($department_id, DESCR_SL);
+
+    if (empty($department_data) && $mode == 'update') {
+        return array(CONTROLLER_STATUS_NO_PAGE);
+    }
+
+    Tygh::$app['view']->assign([
+        'department_data' => $department_data,
+        'u_info' => !empty($department_data['user_id']) ? fn_get_user_short_info($department_data['user_id']) : [],
+    ]);
+
+} elseif ($mode == 'manage_department') {
+    list($departments, $search) = fn_get_departments($_REQUEST, Registry::get('settings.Appearance.admin_elements_per_page'), DESCR_SL);
+    Tygh::$app['view']->assign('departments', $departments);
+    Tygh::$app['view']->assign('search', $search);
+}
+
+
+
+
+function fn_get_departments($params = [], $items_per_page = 0, $lang_code = CART_LANGUAGE) {
+    // Set default values to input params
+    $default_params = array(
+       'page' => 1,
+       'items_per_page' => $items_per_page
+   );
+
+   $params = array_merge($default_params, $params);
+
+   if (AREA == 'C') {
+       $params['status'] = 'A';
+   }
+
+   $sortings = array(
+       'timestamp' => '?collections.timestamp',
+       'name' => '?:department_descriptions.department',
+       'status' => '?:departments.status',
+   );
+
+   $condition = $limit = $join = '';
+
+   if (!empty($params['limit'])) {
+       $limit = db_quote(' LIMIT 0, ?i', $params['limit']);
+   }
+
+   $sorting = db_sort($params, $sortings, 'name', 'asc');
+
+   if (!empty($params['user_ids'])) {
+       $condition .= db_quote(' AND ?:departments.department_id IN (?n)', explode(',', $params['user_ids']));
+   }
+
+   if (!empty($params['department_id'])) {
+       $condition .= db_quote(' AND ?:departments.department_id = ?i', $params['department_id'] );
+   }
+
+   if (!empty($params['status'])) {
+       $condition .= db_quote(' AND ?:departments.status = ?s', $params['status']);
+   }
+
+   $fields = array (
+       '?:departments.*',
+       '?:department_descriptions.department',
+       '?:department_descriptions.description',
+   );
+
+
+   $join .= db_quote(' LEFT JOIN ?:department_descriptions ON ?:department_descriptions.department_id = ?:departments.department_id AND ?:department_descriptions.lang_code = ?s', $lang_code);
+
+   if (!empty($params['items_per_page'])) {
+       $params['total_items'] = db_get_field("SELECT COUNT(*) FROM ?:departments $join WHERE 1 $condition");
+       $limit = db_paginate($params['page'], $params['items_per_page'], $params['total_items']);
+   }
+
+//    $x = db_quote(
+//     "SELECT ?p FROM ?:collections " .
+//     $join .
+//     "WHERE 1 ?p ?p ?p",
+//     'collection_id', implode(', ', $fields), $condition, $sorting, $limit
+//     );
+
+   $departments = db_get_hash_array(
+       "SELECT ?p FROM ?:departments " .
+       $join .
+       "WHERE 1 ?p ?p ?p",
+       'department_id', implode(', ', $fields), $condition, $sorting, $limit
+   );
+
+   $department_image_ids = array_keys($departments);
+   $images = fn_get_image_pairs($department_image_ids, 'department', 'M', true, false, $lang_code);
+
+   foreach ($departments as $department_id => $department) {
+      $departments[$department_id]['main_pair'] = !empty($images[$department_id]) ? reset($images[$department_id]) : array();
+   }
+
+
+   return array($departments, $params);
+}
+
+
+function fn_get_department_data($collection_id = 0, $lang_code = CART_LANGUAGE) {
+    $departments = [];
+    if(!empty($department_id)) {
+        list($departments) = fn_get_departments([
+            'department_id' => $department_id
+        ], 1, $lang_code);
+        $department = !empty($departments) ? reset($departments) : [];
+        if(!empty($departments)) {
+            $department = reset($departments);
+            $department['product_ids'] = fn_department_get_links($department['department_id']);
+        }
+    }
+    return $department;
+
+}
+
+function fn_department_get_links($department_id) {
+    return !empty($department_id) ? db_get_array('SELECT department_id from ?:department_links where department_id = ?i', $department_id) : [];
+}
+
+function fn_update_department($data, $department_id, $lang_code = DESCR_SL)
+{
+    if (isset($data['timestamp'])) {
+        $data['timestamp'] = fn_parse_date($data['timestamp']);
+    }
+
+    if (!empty($department_id)) {
+        db_query("UPDATE ?:departments SET ?u WHERE department_id = ?i", $data, $department_id);
+        db_query("UPDATE ?:department_descriptions SET ?u WHERE department_id = ?i AND lang_code = ?s", $data, $department_id, $lang_code);
+
+
+    } else {
+        $department_id = $data['department_id'] = db_replace_into('departments', $data);
+
+        foreach (Languages::getAll() as $data['lang_code'] => $v) {
+            db_query("REPLACE INTO ?:department_descriptions ?e", $data);
+        }
+    }
+    if (!empty($department_id)) {
+        fn_attach_image_pairs('department', 'department', $department_id, $lang_code);
+    }
+
+    $user_ids = !empty($data['user_ids']) ? $data['user_ids'] : [];
+    // fn_department_delete_links($department_id);
+    fn_department_add_links($department_id, $user_ids);
+    // fn_print_die($_REQUEST);
+    // fn_print_die($data);
+    // fn_print_die($department_id);
+    return $department_id;
+}
+
+function fn_delete_department($department_id)
+{
+
+    if (!empty($department_id)) {
+
+        $res = db_query('DELETE FROM ?:departments WHERE department_id = ?i', $department_id);
+        db_query('DELETE FROM ?:department_descriptions WHERE department_id = ?i', $department_id);
+        // fn_department_delete_links($department_id);
+    }
+}
+
+
+// function fn_department_delete_links($department_id) {
+//     db_query('DELETE FROM ?:departments WHERE department_id = ?i', $department_id);
+    
+// }
+
+function fn_department_add_links($department_id, $user_ids) {
+    if(!empty($user_ids)) {
+        foreach($user_ids as $user_id) {
+            db_query("REPLACE INTO ?:department_descriptions ?e", [
+                'user_id' => $user_id,
+                'department_id' => $department_id,
+            ]);
+        }
+    }
+
 }
