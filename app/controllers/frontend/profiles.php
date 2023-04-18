@@ -299,7 +299,36 @@ if ($mode == 'add') {
         return array(CONTROLLER_STATUS_REDIRECT, 'profiles.add');
     }
 
-    fn_add_breadcrumb(__('registration'));
+    fn_add_breadcrumb(__('products'));
+
+}  elseif ($mode == 'departments') { 
+    // fn_print_die("OOOOGA BOOOGA");
+
+    // Save current url to session for 'Continue shopping' button
+    Tygh::$app['session']['continue_url'] = "profiles.departments";
+
+    $params = $_REQUEST;
+
+    if ($items_per_page = fn_change_session_param(Tygh::$app['session'], $_REQUEST, 'items_per_page')) {
+        $params['items_per_page'] = $items_per_page;
+    }
+    if ($sort_by = fn_change_session_param(Tygh::$app['session'], $_REQUEST, 'sort_by')) {
+        $params['sort_by'] = $sort_by;
+    }
+    if ($sort_order = fn_change_session_param(Tygh::$app['session'], $_REQUEST, 'sort_order')) {
+        $params['sort_order'] = $sort_order;
+    }
+
+
+    $params['user_id'] = Tygh::$app['session']['auth']['user_id'];
+    list($departments, $search) = fn_get_departments($params, Registry::get('settings.Appearance.products_per_page'), CART_LANGUAGE);
+
+
+    Tygh::$app['view']->assign('departments', $departments);
+    Tygh::$app['view']->assign('search', $search);
+    Tygh::$app['view']->assign('columns', 3);
+
+    fn_add_breadcrumb("Отделы");
 }
 
 /**

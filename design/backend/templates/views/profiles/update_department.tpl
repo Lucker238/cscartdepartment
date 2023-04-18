@@ -51,7 +51,7 @@
 
 
     <div class="control-group">
-        <label class="control-label">{__("users")}</label>
+        <label class="control-label">{__("head")}</label>
         <div class="controls">
             {include 
                 file="pickers/users/picker.tpl" 
@@ -59,7 +59,7 @@
                 data_id="return_users"
                 but_meta="btn"
                 input_name="department_data[user_id]" 
-                item_ids=$department_data.user_id 
+                user_ids=$department_data.user_id 
                 placement="right"
                 display="radio"
                 view_mode="single_button"
@@ -67,14 +67,19 @@
         </div>
     </div>
 
-        {include file="views/products/components/picker/picker.tpl"
-        input_name="department_data[user_ids][]"
-        item_ids=$department_data.user_ids
-        multiple=true
-        view_mode="external"
-        select_group_class="btn-toolbar"
-    }
+    <div class="control-group">
+        <label class="control-label">{__("employees")}</label>
+        <div class="controls">
+            {include file="pickers/users/picker.tpl"
+             but_text=__("add_employees_from_users") 
+             data_id="return_users" 
+             but_meta="btn" 
+             input_name="department_data[users]" 
+             item_ids=$department_data.users 
+             placement="right"}
+        </div>
     </div>
+
     <!--content_general--></div>
 
 
@@ -89,7 +94,6 @@
             {/capture}
             {dropdown content=$smarty.capture.tools_list}
     {/if}
-
 
 {/capture}
 

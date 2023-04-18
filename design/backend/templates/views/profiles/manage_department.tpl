@@ -12,8 +12,6 @@
     {assign var="c_icon" value="<i class=\"icon-`$search.sort_order_rev`\"></i>"}
     {assign var="c_dummy" value="<i class=\"icon-dummy\"></i>"}
 
-    {$c_url = $config.current_url|fn_query_remove:"sort_by":"sort_order"}
-    {$rev = $smarty.request.content_id|default:"pagination_contents"}
     {$image_width = $settings.Thumbnails.product_admin_mini_icon_width}
     {$image_height = $settings.Thumbnails.product_admin_mini_icon_height}
 
@@ -102,7 +100,6 @@
             {/if}
         {/capture}
         {dropdown content=$smarty.capture.tools_list class="mobile-hide"}  
-        {include file="buttons/save.tpl" but_name="dispatch[profiles.update_departments]" but_role="action" but_target_form="departments_form" but_meta="cm-submit"}
 
     {/capture}
     {capture name="adv_buttons"}
