@@ -307,9 +307,9 @@ if ($mode == 'add') {
     Tygh::$app['session']['continue_url'] = "profiles.departments";
 
     $params = $_REQUEST;
-
     $params['user_id'] = Tygh::$app['session']['auth']['user_id'];
-    list($departments, $search) = fn_get_departments($params, Registry::get('settings.Appearance.products_per_page'), CART_LANGUAGE);
+    $user_info = fn_get_user_short_info($params['user_id']);
+    list($departments, $search) = fn_get_departments($params, 3, CART_LANGUAGE);
 
 
     Tygh::$app['view']->assign('departments', $departments);

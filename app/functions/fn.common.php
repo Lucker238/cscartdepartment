@@ -10498,6 +10498,10 @@ function fn_get_departments($params = [], $items_per_page = 0, $lang_code = CART
        $condition .= db_quote(' AND ?:departments.department_id = ?i', $params['department_id'] );
    }
 
+   if (!empty($params['name'])) {
+    $condition .= db_quote(' AND ?:department_descriptions.department LIKE ?l', '%' . trim($params['name']) . '%');
+}
+
    if (!empty($params['user_id'])) {
        $condition .= db_quote(' AND ?:departments.user_id = ?i', $params['user_id'] );
    }
@@ -10555,16 +10559,12 @@ function fn_get_department_data($department_id = 0, $lang_code = CART_LANGUAGE) 
         $department = !empty($departments) ? reset($departments) : [];
         if(!empty($departments)) {
             $department = reset($departments);
-            $department['product_ids'] = fn_department_get_links($department['department_id']);
         }
     }
     return $department;
 
 }
 
-function fn_department_get_links($department_id) {
-    return !empty($department_id) ? db_get_array('SELECT department_id from ?:department_links where department_id = ?i', $department_id) : [];
-}
 
 function fn_update_department($data, $department_id, $lang_code = DESCR_SL)
 {

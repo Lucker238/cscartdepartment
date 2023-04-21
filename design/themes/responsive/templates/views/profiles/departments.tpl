@@ -43,6 +43,14 @@
                                             <a href="{"profiles.department?department_id={$department.department_id}"|fn_url}" class="product-title" title="{$department.department}">{$department.department}</a>    
                                         </bdi>
                                     </div>
+                                    <div>
+                                        <td width="{$person_name_col_width}" 
+                                        class="row-status wrap" 
+                                        data-th="{__("person_name")}">
+                                        {if $user_info.firstname || $user_info.lastname}
+                                        {$user_info.lastname} {$user_info.firstname}
+                                        {else}-{/if}
+                                   </div>
                             </div>
                         {/if}
                     </div>

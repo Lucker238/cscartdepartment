@@ -1,14 +1,14 @@
-{** banners section **}
+{** department section **}
 
 {capture name="mainbox"}
 
 <form action="{""|fn_url}" method="post" id="departments_form" name="departments_form" enctype="multipart/form-data">
     <input type="hidden" name="fake" value="1" />
-    {include file="common/pagination.tpl" save_current_page=true save_current_url=true div_id="pagination_contents_departments"}
+    {include file="common/pagination.tpl" save_current_page=true save_current_url=true div_id="pagination_contents_banners"}
 
-    {assign var="c_url" value=$config.current_url|fn_query_remove:"sort_by":"sort_order"}
+    {$c_url=$config.current_url|fn_query_remove:"sort_by":"sort_order"}
 
-    {assign var="rev" value=$smarty.request.content_id|default:"pagination_contents_departments"}
+    {$rev=$smarty.request.content_id|default:"pagination_contents_banners"}
     {assign var="c_icon" value="<i class=\"icon-`$search.sort_order_rev`\"></i>"}
     {assign var="c_dummy" value="<i class=\"icon-dummy\"></i>"}
 
@@ -87,11 +87,18 @@
             {/foreach}
             </table>
         </div>
+    {include file="common/context_menu_wrapper.tpl"
+        form="banners_form"
+        object="banners"
+        items=$smarty.capture.banners_table
+        has_permissions=$has_permission
+    }
+
 {else}
     <p class="no-items">{__("no_data")}</p>
 {/if}
 
-{include file="common/pagination.tpl" div_id="pagination_contents_departments"}
+    {include file="common/pagination.tpl" div_id="pagination_contents_banners"}
 
     {capture name="buttons"}
         {capture name="tools_list"}
@@ -103,12 +110,20 @@
 
     {/capture}
     {capture name="adv_buttons"}
-        {include file="common/tools.tpl" tool_href="profiles.add_department" prefix="top" hide_tools="true" title="Добавить коллекцию" icon="icon-plus"}
+        {include file="common/tools.tpl" tool_href="profiles.add_department" prefix="top" hide_tools="true" title="Добавить отдел" icon="icon-plus"}
     {/capture}
 
 </form>
 
 {/capture}
+
+{capture name="sidebar"}
+    {hook name="departments:manage_sidebar"}
+    {include file="common/saved_search.tpl" dispatch="profiles.manage_department" view_type="departments"}
+    {include file="views/profiles/components/department_search_form.tpl" dispatch="profiles.manage_department"}
+    {/hook}
+{/capture}
+
 
 {hook name="departments:manage_mainbox_params"}
     {$page_title = "Отделы"} {$select_languages = true}

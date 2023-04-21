@@ -40,11 +40,12 @@
             </div>
         </div>
 
+        {capture name="calendar_disable"}{if true}disabled="disabled"{/if}{/capture}
 
         <div class="control-group">
             <label class="control-label" for="elm_banner_timestamp_{$id}">{__("creation_date")}</label>
             <div class="controls">
-            {include file="common/calendar.tpl" date_id="elm_banner_timestamp_`$id`" date_name="department_data[timestamp]" date_val=$department_data.timestamp|default:$smarty.const.TIME start_year=$settings.Company.company_start_year}
+            {include file="common/calendar.tpl" date_id="elm_banner_timestamp_`$id`" date_name="department_data[timestamp]" date_val=$department_data.timestamp|default:$smarty.const.TIME start_year=$settings.Company.company_start_year extra=$smarty.capture.calendar_disable}
             </div>
         </div>
         {include file="common/select_status.tpl" input_name="department_data[status]" id="elm_banner_status" obj_id=$id obj=$department_data hidden=false}
@@ -55,7 +56,7 @@
         <div class="controls">
             {include 
                 file="pickers/users/picker.tpl" 
-                but_text=__("add_recipients_from_users") 
+                but_text=__("add_head_from_users") 
                 data_id="return_users"
                 but_meta="btn"
                 input_name="department_data[user_id]" 
