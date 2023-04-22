@@ -10524,13 +10524,6 @@ function fn_get_departments($params = [], $items_per_page = 0, $lang_code = CART
        $limit = db_paginate($params['page'], $params['items_per_page'], $params['total_items']);
    }
 
-//    $x = db_quote(
-//     "SELECT ?p FROM ?:departments " .
-//     $join .
-//     "WHERE 1 ?p ?p ?p",
-//     'department_id', implode(', ', $fields), $condition, $sorting, $limit
-//     );
-
    $departments = db_get_hash_array(
        "SELECT ?p FROM ?:departments " .
        $join .
