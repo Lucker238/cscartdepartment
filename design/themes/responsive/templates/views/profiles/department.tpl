@@ -11,14 +11,18 @@
             {$department_data.description nofilter}
         </div>
 
-        {if $department_data.users}
+</div>
+        {if $department_data.users_ids}
             <div class="ty-feature__description ty-wysiwyg-content">
-                {foreach from=$department_data.users item="department"}
-                    {$department}
+                {foreach from=$department_data.users_ids item="department"}
+                    {foreach from=$department item="dep"}
+                        <div class="ty-feature__description ty-wysiwyg-content">
+                            {$dep}
+                        </div>                    
+                    {/foreach}
                 {/foreach}
             </div>
         {/if}
-</div>
 
 
 <!--product_features_{$block.block_id}--></div>

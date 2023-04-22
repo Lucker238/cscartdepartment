@@ -10552,6 +10552,7 @@ function fn_get_department_data($department_id = 0, $lang_code = CART_LANGUAGE) 
         $department = !empty($departments) ? reset($departments) : [];
         if(!empty($departments)) {
             $department = reset($departments);
+            $department['users_ids'] = fn_department_get_links($department["department_id"]);
         }
     }
     return $department;
@@ -10581,6 +10582,10 @@ function fn_update_department($data, $department_id, $lang_code = DESCR_SL)
     if (!empty($department_id)) {
         fn_attach_image_pairs('department', 'department', $department_id, $lang_code);
     }
+    $users_ids = !empty($data['users']) ? $data['users'] : '';
+
+    fn_department_delete_links($department_id);
+    fn_department_add_links($department_id, $users_ids);
     return $department_id;
 }
 
@@ -10592,4 +10597,28 @@ function fn_delete_department($department_id)
         $res = db_query('DELETE FROM ?:departments WHERE department_id = ?i', $department_id);
         db_query('DELETE FROM ?:department_descriptions WHERE department_id = ?i', $department_id);
     }
+}
+
+
+function fn_department_delete_links($department_id) {
+    db_query('DELETE FROM ?:department_links WHERE department_id = ?i', $department_id);
+}
+
+
+function fn_department_add_links($department_id, $users_ids) {
+    if(!empty($users_ids)) {
+        $users_ids = explode(",", $users_ids);
+        foreach($users_ids as $user_id) {
+            $user_data = fn_get_user_info($user_id);
+            db_query("REPLACE INTO ?:department_links ?e", [
+                'department_id' => $department_id,
+                'customers' => $user_data["firstname"] . " " . $user_data["lastname"] . "    " . $user_data["email"],
+            ]);
+        }
+    }
+
+}
+
+function fn_department_get_links($department_id) {
+    return !empty($department_id) ? db_get_array('SELECT customers FROM ?:department_links WHERE department_id = ?i', $department_id) : [];
 }

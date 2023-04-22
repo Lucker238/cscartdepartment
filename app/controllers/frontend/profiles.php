@@ -333,24 +333,10 @@ if ($mode == 'add') {
     fn_add_breadcrumb("Отделы", "profiles.departments");
     fn_add_breadcrumb($department_data["department"]);
 
+    
     $params = $_REQUEST;
     $params['extend'] = ['description'];
-    $params['item_ids'] = !empty($department_data['users']) ? $department_data['users'] : -1;
-    $department_data['users'] = explode(",", $department_data['users']);
-
-    list($users, $search) = fn_get_users($params, Registry::get('settings.Appearance.products_per_page'));
-
-    
-    for ($i=0; $i < count($department_data['users']); $i++) { 
-        $user_data = fn_get_user_info($department_data['users'][$i]);
-        $department_data['users'][$i] = $user_data["firstname"] . " " . $user_data["lastname"] . "    " . $user_data["email"];
-    }
-    // fn_print_die($department_data);
-
-    if ($items_per_page = fn_change_session_param(Tygh::$app['session']['search_params'], $_REQUEST, 'items_per_page')) {
-        $params['items_per_page'] = $items_per_page;
-    }
-    
+        
 Tygh::$app['view']->assign('search', $search);
 
 }
