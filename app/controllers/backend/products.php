@@ -685,6 +685,7 @@ if ($mode === 'manage' || $mode === 'p_subscr') {
     } else {
         Tygh::$app['view']->assign('feature_items_too_many', true);
     }
+
 }
 
 // 'Add new product' page

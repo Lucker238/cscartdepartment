@@ -17,6 +17,8 @@ use Tygh\Enum\YesNo;
 use Tygh\Registry;
 use Tygh\Tools\Url;
 
+
+
 if (!defined('BOOTSTRAP')) { die('Access denied'); }
 
 /**
@@ -299,7 +301,44 @@ if ($mode == 'add') {
         return array(CONTROLLER_STATUS_REDIRECT, 'profiles.add');
     }
 
-    fn_add_breadcrumb(__('registration'));
+    fn_add_breadcrumb(__('products'));
+
+}  elseif ($mode == 'departments') { 
+
+    // Save current url to session for 'Continue shopping' button
+    Tygh::$app['session']['continue_url'] = "profiles.departments";
+
+    $params = $_REQUEST;
+    $params['user_id'] = Tygh::$app['session']['auth']['user_id'];
+    $user_info = fn_get_user_short_info($params['user_id']);
+    list($departments, $search) = fn_get_departments($params, 3, CART_LANGUAGE);
+
+    Tygh::$app['view']->assign('departments', $departments);
+    Tygh::$app['view']->assign('search', $search);
+    Tygh::$app['view']->assign('columns', 3);
+
+    fn_add_breadcrumb("Отделы");
+
+
+} elseif ($mode === 'department') {
+    $department_data = [];
+    $department_id = !empty($_REQUEST['department_id']) ? $_REQUEST['department_id'] : 0;
+    $department_data = fn_get_department_data($department_id, CART_LANGUAGE);
+    if (empty($department_data)) {
+        return [CONTROLLER_STATUS_NO_PAGE];
+    }
+
+    Tygh::$app['view']->assign('department_data', $department_data);
+
+    fn_add_breadcrumb("Отделы", "profiles.departments");
+    fn_add_breadcrumb($department_data["department"]);
+
+    
+    $params = $_REQUEST;
+    $params['extend'] = ['description'];
+        
+Tygh::$app['view']->assign('search', $search);
+
 }
 
 /**
