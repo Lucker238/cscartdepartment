@@ -527,7 +527,7 @@ $schema = [
                     'alt' => 'profiles.update?user_type=C',
                     'position' => 300,
                 ],
-                'department' => [
+                'departments' => [
                     'href' => 'profiles.manage_department',
                     'position' => 600,
                 ],
