@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 fn_delete_department($department_id);
             }
         }
-        $url = ".profilesmanage_department";
+        $url = "profiles.manage_department";
         return [CONTROLLER_STATUS_REDIRECT, $url];
     }
 

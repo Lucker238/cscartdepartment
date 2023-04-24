@@ -10593,7 +10593,7 @@ function fn_delete_department($department_id)
 {
 
     if (!empty($department_id)) {
-
+        fn_department_delete_links($department_id);
         $res = db_query('DELETE FROM ?:departments WHERE department_id = ?i', $department_id);
         db_query('DELETE FROM ?:department_descriptions WHERE department_id = ?i', $department_id);
     }

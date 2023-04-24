@@ -73,7 +73,7 @@
                     {capture name="tools_list"}
                         <li>{btn type="list" text=__("edit") href="profiles.update_department?department_id=`$department.department_id`"}</li>
                     {if $allow_save}
-                        <li>{btn type="list" class="cm-confirm" text=__("delete") href="profiles.delete_departments?department_id=`$department.department_id`" method="POST"}</li>
+                        <li>{btn type="list" class="cm-confirm" text=__("delete") href="profiles.delete_department?department_id=`$department.department_id`" method="POST"}</li>
                     {/if}
                     {/capture}
                     <div class="hidden-tools">

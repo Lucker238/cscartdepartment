@@ -40,7 +40,7 @@
             </div>
         </div>
 
-        {capture name="calendar_disable"}{if true}disabled="disabled"{/if}{/capture}
+        {capture name="calendar_disable"}{if $department_data.timestamp}disabled="disabled"{/if}{/capture}
 
         <div class="control-group">
             <label class="control-label" for="elm_banner_timestamp_{$id}">{__("creation_date")}</label>
