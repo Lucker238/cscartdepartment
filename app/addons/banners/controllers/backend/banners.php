@@ -103,7 +103,7 @@ if ($mode == 'update') {
 } elseif ($mode == 'manage' || $mode == 'picker') {
 
     list($banners, $params) = fn_get_banners($_REQUEST, DESCR_SL, Registry::get('settings.Appearance.admin_elements_per_page'));
-
+    
     Tygh::$app['view']->assign(array(
         'banners'  => $banners,
         'search' => $params,

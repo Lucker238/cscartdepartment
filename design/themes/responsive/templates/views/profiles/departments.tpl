@@ -34,7 +34,7 @@
                                             images=$department.main_pair
                                             image_width=$settings.Thumbnails.product_lists_thumbnail_width 
                                             image_height=$settings.Thumbnails.product_lists_thumbnail_height 
-                                            lazy_load=true
+                                            lazy_load=false
                                         }
                                     </a>
                                 </div>

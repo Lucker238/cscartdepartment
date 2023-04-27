@@ -13,11 +13,9 @@
         <div class="control-group">
             <label for="elm_banner_name" class="control-label cm-required">{__("name")}</label>
             <div class="controls">
-              <input type="text" name="department_data[department]" id="elm_banner_name" value="{$department_data.department}" size="25" class="input-large" />
+                <input type="text" name="department_data[department]" id="elm_banner_name" value="{$department_data.department}" size="25" class="input-large" />
             </div>
         </div>
-
-
 
         <div class="control-group" id="banner_graphic">
             <label class="control-label">{__("image")}</label>

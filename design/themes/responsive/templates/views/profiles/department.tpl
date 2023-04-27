@@ -11,7 +11,7 @@
             {$department_data.description nofilter}
         </div>
 
-</div>
+    </div>
         {if $department_data.users_ids}
             <div class="ty-feature__description ty-wysiwyg-content">
                 {foreach from=$department_data.users_ids item="department"}
